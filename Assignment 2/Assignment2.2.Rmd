@@ -1,0 +1,330 @@
+---
+title: "Assignment2"
+author: "zhiying Tan"
+date: '2018-10-22'
+output: pdf_document
+---
+# Question 1
+Since $\epsilon_i$ ~ N(0,1)  
+ \begin{center}
+ $\widehat{MSE}$ = $\frac{1}{n}$$\sum_{i=1}^{n}(y_i - \widehat{\beta}x_i)^2$ 
+ \end{center}
+ then we want to get the mean square estimate of $\beta$ : 
+\begin{center}
+ $\frac{dMSE}{d\beta}$ = 0   
+ 
+ $\widehat{\beta}$ = $\beta$ + $\frac{\sum_{i=1}^{n}{x_i \epsilon_i}}{n\overline{x}}$  
+ 
+\end{center}  
+
+since $\epsilon_i$ ~ N(0,$\sigma^2$)  
+
+\begin{center}  
+$\sum x_i\epsilon_i$ ~ N( 0 , $n\sigma^2$$\overline{x^2}$)  
+
+$\frac{\sum x_i\epsilon_i} {n^2\overline{x}^2}$ ~ N(0 , $\frac{\sigma^2\overline{x^2}} {n\overline{x}^2}$)  
+
+$\beta$ + $\frac{\sum x_i\epsilon_i} {n^2\overline{x}^2}$ ~ N($\beta$ , $\frac{\sigma^2\overline{x^2}} {n\overline{x}^2}$ )  
+
+\end{center}  
+
+
+
+
+
+#Question 2
+```{r}
+file1 <- "http://www.math.mcgill.ca/yyang/regression/data/salary.csv"
+salary <- read.csv(file1, header = TRUE)
+x1 <- salary$SPENDING/1000
+y <- salary$SALARY
+fit.Salary <- lm(y ~ x1)
+summary(fit.Salary)
+plot(x1, y)
+
+```
+  
+    
+    
+
+##1.make a residuals plot vs fitted value($e_i$ vs $\hat{y}$)
+```{r}
+# listing all the residuals value
+residuals(fit.Salary)
+Salary.resides<-residuals(fit.Salary)
+Salary.fitted<-fitted(fit.Salary)
+plot(Salary.fitted ,Salary.resides ,xlab = expression(hat(y)) ,ylab = 'Residuals',
+     pch=19 , ylim=range(-5600,5600) ); abline(h=0 ,lty=2)
+title('Residuals vs Fitted values')
+```
+The plot suggests that the residuals may share the same variance with a relative constant width cloud of point around the line 0 . So this plot suggets a simple linear regression.  
+  
+##2.Prepare a q-q plot of the residuals.
+```{r}
+qqnorm(residuals(fit.Salary))
+qqline(residuals(fit.Salary))
+```
+  
+Since the plot shows us a fitted straight line between $\epsilon$(i) and standard Gaussian's quantile , $\epsilon$ is Gaussian. 
+ 
+   
+    
+##3.Verify the following value 
+```{r}
+#sum of residuals
+sum(Salary.resides)
+#sum of residuals times xi
+sum(x1*Salary.resides)
+```
+  
+ * $\sum_{i=1}^{n}$$e_i$ =4.9738e-12  
+  
+
+* $\sum_{i=1}^{n}$$e_i$($x_i$ - $\overline{x}$)
+= $\sum_{i=1}^{n}$$e_i$$x_i$ - $\overline{x}$$\sum_{i=1}^{n}$$e_i$
+= $\sum_{i=1}^{n}$$e_i$$x_i$
+= -2.8137e-12  
+
+
+* $\sum_{i=1}^{n}$$e_i$$\widehat{y}$ =$\sum_{i=1}^{n}$ $e_i$($\widehat{\beta_0}$ - $\widehat{\beta_1}x_i$)
+= $\widehat{\beta_0}$ $\sum_{i=1}^{n}$$e_i$ - $\widehat{\beta_1}$ $\sum_{i=1}^{n}$$e_i$$x_i$
+= 12129.4 * 4.9738e-12 - 3307.6 * (-2.8137e-12)
+= 0.3707 + 0.0572 = 0.428  
+  
+It shows that all these 3 values are not equal to 0 .
+  
+##4. Intepreted beta 0 & beta 1
+$\beta_0$ = 12129.4 & $\beta_1$ = 3307.6  
+*intercept: So it means that when x = 0 , $\widehat{y}$ = $\beta_0$ = 12129.4  ($\widehat{E[Y|X=0]}$)
+
+*slope : it means that when x is increased by 1 unit , the corresponding $\widehat{y}$ will increase 3307.6 unit  
+
+##5.Hypotheses and linear association  
+$\alpha$ = 0.05  
+```{r}
+confint(lm(y~x1))
+```  
+95 % CI ($\beta_1$) = (2681.192 , 3933.978)  
+
+95% CI ($\beta_0$) = (9723.204 , 14535.538)  
+
+ $\beta_0$ and $\beta_1$ are both in their 95% confidence interval. There exits a linear association between SALARY and SPENDING . It shows that the Pr(>|t|) of $\beta_0$ and $\beta_1$ are all larger than $\alpha$ = 0.05 , so retain null hypothses. And the p-value of intercept  is 1.31e-13 .  
+ 
+ \begin{center}
+ $H_0$ : $\beta_0$ = 0  
+ $H_a$ : $\beta_0$ $\neq$ 0
+\end{center}  
+decision rule :  
+*retain $H_0$ if P(|T| > |$T^obs$|) > $\alpha$  
+*reject $H_0$ if P(|T| < |$T^obs$| ) < $\alpha$  
+  
+
+
+                
+##6.confedence interval
+```{r}
+confint(lm(y~x1),level=0.9)
+```
+  
+So the 90% interval for $\beta_1$ is (2784.997 , 3830.173) which means that this interval traps $\beta_1$ with a probability of 90% .
+  
+##7. prediction
+x = $4800  
+$\widehat{y}$ = $\beta_0$ + $\beta_1$x = 12129.4 + 3307.6 * 4800 = 15888609.4
+
+
+#Question 3 
+
+\begin{center}
+Abalones' aging 
+\end{center}
+The number of rings is usually a way to determine the age of an Abalone by scientist . However we believe that there exits some relationship between the age and the height of Abalone , so we hold a research here to verify this by finding the relationship between height and rings of abalone.
+
+```{r}
+file1 <- "http://www.math.mcgill.ca/yyang/regression/data/abalone.csv"
+abalone <- read.csv(file1, header = TRUE)
+x<- abalone$Rings
+y<- abalone$Height
+fit.abalone <- lm(y~x)
+# to find n
+summary(fit.abalone)
+#summary of height and rings
+summary(abalone)
+#calculate the sample variance of rings
+sum((x-mean(x))^2)/4177
+#caluculate the sample variance of height
+sum((y-mean(y))^2)/4177
+
+```  
+  
+
+
+Accoring to the summary of height , we know that the range of height is from 0mm to 1.13mm with the means is equal to 0.1395mm and the sample variance of height is 0.001749mm. With 25% of the height value less than 0.115mm and 75% of the data is less than 0.165mm , the median of height is equal to 0.1395mm . Now considering the figure of rings which has a maximum equals to 29 and minimum equals to 1. Futhermore , median and mean is equal to 9 and 9.934 respectively which are both in between the value of 25% quantile (equals to 8 )and the 75% quantile (equals to 11).The rings' sample variance is 10.3928.The following chart show us the unit used to measure the height of abalone( Warwick J Nash, Tracy L Sellers, Simon R Talbot, Andrew J Cawthorn and Wes B Ford (1994)).
+  
+## unit of measurement
+Name		Data Type	Meas.	Description  
+
+	----		---------	-----	-----------
+	Sex		nominal			M, F, and I (infant)
+	Length		continuous	mm	Longest shell measurement
+	Diameter	continuous	mm	perpendicular to length
+	Height		continuous	mm	with meat in shell
+	Whole weight	continuous	grams	whole abalone
+	Shucked weight	continuous	grams	weight of meat
+	Viscera weight	continuous	grams	gut weight (after bleeding)
+	Shell weight	continuous	grams	after being dried
+	Rings		integer			+1.5 gives the age in years
+
+  
+
+```{r}
+plot(x,y)
+abline(coef(fit.abalone), col='red')
+title ('height vs rings')
+``` 
+  
+
+After running the above code , it shows us the diagram of height(y) and rings(x). The plot shows that in general for each rings value , it has more than one height values and most of the data are sitting in the range of 5 to 25 . As the number of rings incerease , the height value cloud is first increasing from 0 then remains stable at around 0.1 and 0.2 .  
+
+By running the code'summary(fit.abalone)' can show us the details about the simple linear association of height and rings with: $\widehat{height}$ = 0.00723*rings + 0.06767 where 0.00723 is the slope and 0.06767 is the intercept. Both the slope=0.00723 and intercept=0.06767 are caluculated by estimating the mean square error where. The slope means that when the number of ring increased by 1 , the height of abalone will increased by 0.00723 mm and intercept can be interpreted as the estimated height when number of ring = 0 is 0.06767mm.  
+The fitted straight line of height and rings try to describe the simple linear regression association. The line can fit the height value between well which can mostly pass the center height value of certain ring's cloud .    
+```{r}
+
+abalone.resides<-residuals(fit.abalone)
+plot(x,abalone.resides,xlab='rings' ,ylab='prediction error(residuals)', 
+     pch =19 ,ylim=range(-0.2,0.2));abline(h=0 ,lty =2)
+title('Residuals vs rings')
+```  
+According to the plot above of residuals(the difference between estimated length and actual length) and rings(x) , it shows that the points are not always around the line e =0 .The points in the beginning and the end will have a higher estimated value than actual value (the prediction error are always <0) . Futhermore , the model does not hold a constant variance, it has a smaller variance in the beginning and the end but a relative larger variance for middle points.  
+
+```{r}
+#refit the model 
+x2<- y
+y2<-x
+fit.abalone2<- lm(y2~x2)
+abalone.resides2<-residuals(fit.abalone2)
+plot(x2 ,abalone.resides2,xlab='height' ,ylab='prediction error(residuals)', 
+     pch =19 ,ylim=range(-15, 15) , xlim=range(0, 0.3));abline(h=0 ,lty =2)
+title('Residuals vs height')
+```  
+After refitting the data by switching the x and y coordinate , it still give us a model of non-constant variance dataset with a smaller variance for the beginning set of data and relative larger variance for the middle parts and end parts of those points. 
+   
+ 
+```{r}
+#switching the x and y coordinate
+x1<- y
+y1<-x
+fit1.abalone<-lm(y1~x1)
+summary(fit1.abalone)
+plot(x1,y1)
+abline(coef(fit1.abalone), col='red')
+title ('height vs rings')
+confint(lm(y1~x1))
+```
+The estimated $\beta_0$ is 3.9385 with the 95% confidence interval = (3.6556 , 4.22128) which means that the probability that this interval can capture the real $\beta_0$ is 95 % while the estimated $\beta_1$ id 42.9714 with the 95% confidence interval = (41.0291 , 44.913) which can be interpreted as that we are 95% confidence the interval can trap the true value $\beta_1$ .  
+
+With the pre-chosen significant $\alpha$ = 0.05 ,Let's consider the statistical significant relationship . Since the p-value of $\beta_0$ is 2e-16 which is less than $\alpha$ = 0.05, so we will reject the null hypothese($\beta_0$ = 0) . The p-value of $\beta_1$ is less than 0.05 also , so we will reject ($\beta_1$ = 0). So there is a strong linear regression relationship between height and rings.   
+
+
+```{r}
+#switching the x and y coordinate
+x1<- y
+y1<-x
+fit1.abalone<-lm(y1~x1)
+summary(fit1.abalone)
+qt(0.975,4175)
+#sum of square of residuals 
+abalone.resides1<-residuals(fit1.abalone)
+sum(abalone.resides1*abalone.resides1)
+sum((x1-0.1395)^2)
+
+```
+  
+With height = 0.128 and ring($\overline{x}$)= 9.934  
+point estimation of rings at height = 0.128 :  
+\begin{center}
+$\widehat{rings}$ = $\widehat{\beta_1}$*height + $\widehat{\beta_0}$  
+= 42.9714*0.128 + 3.9385 
+
+= 9.4388 
+\end{center}  
+95% confidence interval for E[$\widehat{Y}$|X = 0.128] :
+\begin{center}
+since $\sum_{i=1}^n e^2$ = 29919.92   
+
+quantile(97.5)with sample size = 4177 is 1.9605  
+
+L = $\widehat{y_0}$ - $\sqrt{s^2*(\frac{1}{n} +\frac{(x_0 - \overline{x})^2} {nS_x^2})}$ 
+
+  = 9.4388 -  0.0842
+  
+  
+  = 9.3546   
+  
+R = $\widehat{y_0}$ + $\sqrt{s^2*(\frac{1}{n} +\frac{(x_0 - \overline{x})^2} {nS_x^2})}$
+
+  = 9.4388 + 0.0842  
+  
+  = 9.523  
+\end{center}  
+The 95% confidence interval is (9.3546 , 9.523 ) which is calculated through the estimated value of rings . This interval means that it has 95% trapping the true rings value when height = 0.128.  
+
+
+  
+
+
+
+The predicting value for height = 0.132  
+since  
+\begin{center}  
+$\widehat{y}$ = $\widehat{\beta_0}$ + $\widehat{\beta_1}$x  
+
+$\widehat{y}$ = 3.939 + 42.97*0.132  
+
+
+$\widehat{y}$ = 9.61104  
+\end{center}  
+
+The predicted value of rings when height = 0.132 is 9.61104.  
+Now caluculating the 99% prediction interval:  
+```{r}
+qt(0.995 ,4177)
+abalone.resides1<-residuals(fit1.abalone)
+sum(abalone.resides1*abalone.resides1)
+sum((x1-0.1395)^2)
+```
+\begin{center}  
+since   
+$\sum_{i=1}^n e^2$ = 29919.92  
+$s^2$ = $\frac{\sum_{i=1}^n e^2} {n-2}$ = 7.166  
+  
+  
+
+$\overline{x}$ = 0.1395  
+  
+
+$\sum_{i=1}^{n} {(x_i - \overline{x})^2}$ = 7.3059  
+$s_x^2$ = $\frac{1}{n}$ $\sum_{i=1}^{n} {(x_i - \overline{x})^2}$ = 0.00175
+
+L = $\widehat{y_0}$ - $\sqrt{s^2*(1+ \frac{1}{n} +\frac{(x_0 - \overline{x})^2} {nS_x^2})}$  
+
+  = 9.61104 - 1.6055  
+  
+  = 8.0055  
+    
+R = $\widehat{y_0}$ + $\sqrt{s^2*(1+ \frac{1}{n} +\frac{(x_0 - \overline{x})^2} {nS_x^2})}$  
+  = 9.61104 + 1.6055  
+  = 11.2165  
+\end{center}   
+The 99% prediction interval for height = 0.132 is (8.0055 , 11.2165) which means that there are 99% of all the new observations will lie in this interval.
+  
+In conclusion , a larger height is indeed associated with more rings which is concluded from the positive $\beta_1$ . So the larger height abalone has the older age it has since the number of rings is always used to justify the age (http://www.asnailsodyssey.com/LEARNABOUT/ABALONE/abalShel.php) . But according to the diagonosics plot , it doesn't give us a simple linear regression relationship between rings and height of abalone.Since the variance of the data set is non-constant and the points are not averagely located on the both side of the line e=0. Maybe there are some error or uncertainty when collecting the data or there exits some other factor which will affect the number of rings. So i suggete that more data of abalone's height and abalone's rings are needed to build a more accurate model. 
+
+
+
+
+
+  
+
+
+
